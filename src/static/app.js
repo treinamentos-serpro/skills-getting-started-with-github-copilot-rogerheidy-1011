@@ -10,8 +10,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const response = await fetch("/activities");
       const activities = await response.json();
 
-      // Clear loading message
+      // Clear loading message and previous options
       activitiesList.innerHTML = "";
+      activitySelect.innerHTML = '<option value="">-- Selecione uma atividade --</option>';
 
       // Populate activities list
       Object.entries(activities).forEach(([name, details]) => {
@@ -27,6 +28,30 @@ document.addEventListener("DOMContentLoaded", () => {
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
         `;
 
+        const participantsSection = document.createElement("div");
+        participantsSection.className = "participants-section";
+
+        const participantsTitle = document.createElement("h5");
+        participantsTitle.textContent = `Participants (${details.participants.length})`;
+        participantsSection.appendChild(participantsTitle);
+
+        if (details.participants.length > 0) {
+          const participantsList = document.createElement("ul");
+          participantsList.className = "participants-list";
+          details.participants.forEach((participant) => {
+            const item = document.createElement("li");
+            item.textContent = participant;
+            participantsList.appendChild(item);
+          });
+          participantsSection.appendChild(participantsList);
+        } else {
+          const empty = document.createElement("p");
+          empty.className = "no-participants";
+          empty.textContent = "No participants yet";
+          participantsSection.appendChild(empty);
+        }
+
+        activityCard.appendChild(participantsSection);
         activitiesList.appendChild(activityCard);
 
         // Add option to select dropdown
@@ -62,6 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        fetchActivities();
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
